@@ -2,6 +2,7 @@
 
 A production-ready MVP for an AI-powered platform that helps QA teams generate, manage, and export test cases using advanced AI technology.
 <img width="1512" height="825" alt="image" src="https://github.com/user-attachments/assets/223dfc7f-7d5a-45e7-8a82-839990e5046e" />
+
 <img width="1512" height="825" alt="image" src="https://github.com/user-attachments/assets/076bc03f-64fc-4c05-b7bd-bae74838d0b4" />
 
 ## 🎯 Features
