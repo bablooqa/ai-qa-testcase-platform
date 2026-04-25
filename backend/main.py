@@ -1,8 +1,21 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
+
 from models.database import create_tables
 from routes import projects, testcases, ai, export
+
+# Debug: Print API key status (first 10 chars only for security)
+api_key = os.getenv("MISTRAL_API_KEY")
+if api_key:
+    print(f"✅ MISTRAL_API_KEY loaded: {api_key[:10]}...")
+else:
+    print("❌ MISTRAL_API_KEY not found in environment")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -18,10 +31,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Add CORS middleware
+# Add CORS middleware - allow all origins for development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Next.js frontend
+    allow_origins=["*"],  # Allow all origins for development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

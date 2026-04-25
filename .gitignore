@@ -1,0 +1,140 @@
+# =============================
+# 🌐 FRONTEND (Next.js)
+# =============================
+frontend/node_modules/
+frontend/node_modules/**
+frontend/node_modules
+ai-qa-platform/frontend/node_modules
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/dist/
+
+# Logs
+frontend/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Env files
+frontend/.env.local
+frontend/.env
+backend/.environments
+backend/.env
+
+# =============================
+# 🐍 BACKEND (FastAPI)
+# =============================
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+
+# Virtual environments
+backend/venv/
+backend/.venv/
+
+# Database
+backend/*.db
+backend/*.sqlite
+backend/qa_platform.db
+
+# =============================
+# 🔐 GLOBAL ENV & SENSITIVE DATA
+# =============================
+.env
+.env.*
+*.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# API Keys and Secrets
+*.key
+*.pem
+*.cert
+*.secret
+*secret*
+*apikey*
+*api-key*
+*password*
+*token*
+*credential*
+
+# Backend specific env files
+backend/.env
+backend/.env.*
+backend/**/*.env
+
+# Frontend specific env files
+frontend/.env
+frontend/.env.*
+frontend/.env.local
+frontend/.env.development
+frontend/.env.production
+
+# Config files with sensitive data
+config.json
+secrets.json
+credentials.json
+service-account.json
+
+# Log files that might contain sensitive data
+*.log
+logs/
+log/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+backend/qa_platform.db
+
+# =============================
+# 🧠 CACHE / TEMP
+# =============================
+.cache/
+tmp/
+temp/
+
+# =============================
+# 🖥 OS FILES
+# =============================
+.DS_Store
+Thumbs.db
+
+# =============================
+# 🧪 TEST / COVERAGE
+# =============================
+.coverage
+htmlcov/
+.pytest_cache/
+
+# =============================
+# 🧰 IDE / EDITOR
+# =============================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =============================
+# ⚙️ BUILD FILES
+# =============================
+*.tsbuildinfo
+
+# =============================
+# 🚫 LARGE FILES
+# =============================
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+
+# =============================
+# ⚙️ CUSTOM (Windsurf)
+# =============================
+.windsurfrules

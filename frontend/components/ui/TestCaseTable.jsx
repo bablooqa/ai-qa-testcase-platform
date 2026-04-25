@@ -106,7 +106,7 @@ const TestCaseTable = ({
                       className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   ) : (
-                    <div className="text-slate-300 max-w-xs truncate">{testCase.title}</div>
+                    <div className="text-slate-300 max-w-xs" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'normal', lineHeight: '1.4' }} title={testCase.title}>{testCase.title}</div>
                   )}
                 </td>
                 
@@ -119,7 +119,7 @@ const TestCaseTable = ({
                       className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                     />
                   ) : (
-                    <div className="text-slate-300 max-w-xs truncate">{testCase.steps}</div>
+                    <div className="text-slate-300 max-w-xs" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'pre-wrap', lineHeight: '1.4', maxHeight: '80px' }} title={testCase.steps}>{testCase.steps}</div>
                   )}
                 </td>
                 
@@ -132,7 +132,7 @@ const TestCaseTable = ({
                       className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                     />
                   ) : (
-                    <div className="text-slate-300 max-w-xs truncate">{testCase.expected_result}</div>
+                    <div className="text-slate-300 max-w-xs" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'pre-wrap', lineHeight: '1.4', maxHeight: '80px' }} title={testCase.expected_result}>{testCase.expected_result}</div>
                   )}
                 </td>
                 

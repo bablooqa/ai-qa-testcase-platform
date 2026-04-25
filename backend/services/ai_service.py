@@ -6,13 +6,21 @@ from models.schemas import TestCaseCreate
 
 class AIService:
     def __init__(self):
-        self.api_key = os.getenv("OPENAI_API_KEY") or os.getenv("ANTHROPIC_API_KEY")
-        self.base_url = os.getenv("OPENAI_API_BASE", "https://api.openai.com/v1")
-        
-        if os.getenv("ANTHROPIC_API_KEY"):
+        # Check for Mistral API key first, then OpenAI, then Anthropic
+        if os.getenv("MISTRAL_API_KEY"):
+            self.api_key = os.getenv("MISTRAL_API_KEY")
+            self.provider = "mistral"
+        elif os.getenv("OPENAI_API_KEY"):
+            self.api_key = os.getenv("OPENAI_API_KEY")
+            self.provider = "openai"
+        elif os.getenv("ANTHROPIC_API_KEY"):
+            self.api_key = os.getenv("ANTHROPIC_API_KEY")
             self.provider = "anthropic"
         else:
-            self.provider = "openai"
+            self.api_key = None
+            self.provider = None
+        
+        self.base_url = os.getenv("OPENAI_API_BASE", "https://api.openai.com/v1")
     
     async def generate_test_cases(self, requirement: str, feature_name: str) -> List[Dict[str, Any]]:
         """Generate test cases using AI based on requirement and feature name"""
@@ -28,7 +36,7 @@ class AIService:
             "test_cases": [
                 {{
                     "title": "Test case title",
-                    "steps": "Step 1\\nStep 2\\nStep 3",
+                    "steps": "Step 1\nStep 2\nStep 3",
                     "expected_result": "Expected outcome",
                     "priority": "low|medium|high|critical"
                 }}
@@ -47,10 +55,15 @@ class AIService:
         """
 
         try:
-            if self.provider == "anthropic":
+            if self.provider == "mistral":
+                return await self._call_mistral(prompt)
+            elif self.provider == "anthropic":
                 return await self._call_claude(prompt)
-            else:
+            elif self.provider == "openai":
                 return await self._call_openai(prompt)
+            else:
+                print("No AI provider configured. Please set MISTRAL_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY")
+                return []
         except Exception as e:
             print(f"Error generating test cases: {e}")
             return []
@@ -124,6 +137,48 @@ class AIService:
             
             result = response.json()
             content = result["content"][0]["text"]
+            
+            # Parse JSON response
+            try:
+                parsed = json.loads(content)
+                return parsed.get("test_cases", [])
+            except json.JSONDecodeError:
+                # Try to extract JSON from response
+                start = content.find("{")
+                end = content.rfind("}") + 1
+                if start != -1 and end != -1:
+                    json_str = content[start:end]
+                    parsed = json.loads(json_str)
+                    return parsed.get("test_cases", [])
+                raise ValueError("Could not parse JSON from AI response")
+    
+    async def _call_mistral(self, prompt: str) -> List[Dict[str, Any]]:
+        """Call Mistral API"""
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        data = {
+            "model": "mistral-large-latest",
+            "messages": [
+                {"role": "system", "content": "You are a senior QA engineer generating test cases."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.7
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://api.mistral.ai/v1/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=60.0
+            )
+            response.raise_for_status()
+            
+            result = response.json()
+            content = result["choices"][0]["message"]["content"]
             
             # Parse JSON response
             try:

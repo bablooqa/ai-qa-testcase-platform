@@ -434,17 +434,17 @@ const ProjectDetail = () => {
 
           {/* Test Cases Table */}
           <div style={{ backgroundColor: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(8px)', border: '1px solid #334155', borderRadius: '16px', overflow: 'hidden' }}>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div style={{ overflowX: 'auto', maxHeight: '600px' }}>
+              <table style={{ minWidth: '1200px', borderCollapse: 'collapse' }}>
                 <thead style={{ backgroundColor: 'rgba(15, 23, 42, 0.5)', borderBottom: '1px solid #334155' }}>
                   <tr>
-                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase' }}>ID</th>
-                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase' }}>Title</th>
-                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase' }}>Steps</th>
-                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase' }}>Expected Result</th>
-                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase' }}>Priority</th>
-                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase' }}>Status</th>
-                    <th style={{ padding: '16px', textAlign: 'right', fontSize: '12px', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase' }}>Actions</th>
+                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>ID</th>
+                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase', minWidth: '150px' }}>Title</th>
+                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase', minWidth: '250px' }}>Steps</th>
+                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase', minWidth: '200px' }}>Expected Result</th>
+                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Priority</th>
+                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Status</th>
+                    <th style={{ padding: '16px', textAlign: 'right', fontSize: '12px', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody style={{ borderBottom: '1px solid #334155' }}>
@@ -453,14 +453,14 @@ const ProjectDetail = () => {
                       <td style={{ padding: '16px', color: '#cbd5e1', fontSize: '14px', whiteSpace: 'nowrap' }}>
                         TC-{testCase.id.toString().padStart(4, '0')}
                       </td>
-                      <td style={{ padding: '16px', color: '#cbd5e1', fontSize: '14px' }}>
-                        <div style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{testCase.title}</div>
+                      <td style={{ padding: '16px', color: '#cbd5e1', fontSize: '14px', minWidth: '150px' }}>
+                        <div style={{ maxWidth: '250px', overflow: 'visible', whiteSpace: 'normal', lineHeight: '1.5', wordWrap: 'break-word' }} title={testCase.title}>{testCase.title}</div>
                       </td>
-                      <td style={{ padding: '16px', color: '#cbd5e1', fontSize: '14px' }}>
-                        <div style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{testCase.steps}</div>
+                      <td style={{ padding: '16px', color: '#cbd5e1', fontSize: '14px', minWidth: '250px' }}>
+                        <div style={{ maxWidth: '350px', overflow: 'visible', whiteSpace: 'pre-wrap', lineHeight: '1.5', wordWrap: 'break-word' }} title={testCase.steps}>{testCase.steps}</div>
                       </td>
-                      <td style={{ padding: '16px', color: '#cbd5e1', fontSize: '14px' }}>
-                        <div style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{testCase.expected_result}</div>
+                      <td style={{ padding: '16px', color: '#cbd5e1', fontSize: '14px', minWidth: '200px' }}>
+                        <div style={{ maxWidth: '300px', overflow: 'visible', whiteSpace: 'pre-wrap', lineHeight: '1.5', wordWrap: 'break-word' }} title={testCase.expected_result}>{testCase.expected_result}</div>
                       </td>
                       <td style={{ padding: '16px', whiteSpace: 'nowrap' }}>
                         <span style={{ 
