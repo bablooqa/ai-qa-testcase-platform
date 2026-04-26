@@ -412,7 +412,10 @@ export default function ProjectsPage() {
                   <Button 
                     className="flex-1" 
                     size="sm"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      openGenerateDialog(project)
+                    }}
                   >
                     Generate AI
                   </Button>
