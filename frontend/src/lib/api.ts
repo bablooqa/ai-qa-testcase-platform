@@ -41,36 +41,36 @@ async function apiCall<T>(
 
 export const organizationApi = {
   list: async () => {
-    return apiCall('/api/v1/organizations')
+    return apiCall('/organizations')
   },
 
   get: async (id: number) => {
-    return apiCall(`/api/v1/organizations/${id}`)
+    return apiCall(`/organizations/${id}`)
   },
 
   create: async (data: { name: string; description?: string }) => {
-    return apiCall('/api/v1/organizations', {
+    return apiCall('/organizations', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
   update: async (id: number, data: { name?: string; description?: string }) => {
-    return apiCall(`/api/v1/organizations/${id}`, {
+    return apiCall(`/organizations/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
   },
 
   inviteMember: async (id: number, data: { email: string; role: string }) => {
-    return apiCall(`/api/v1/organizations/${id}/invite`, {
+    return apiCall(`/organizations/${id}/invite`, {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
   listMembers: async (id: number) => {
-    return apiCall(`/api/v1/organizations/${id}/members`)
+    return apiCall(`/organizations/${id}/members`)
   },
 }
 
@@ -79,29 +79,29 @@ export const organizationApi = {
 export const projectApi = {
   list: async (params?: { organization_id?: number }) => {
     const queryString = params ? new URLSearchParams(params as any).toString() : ''
-    return apiCall(`/api/v1/projects${queryString ? `?${queryString}` : ''}`)
+    return apiCall(`/projects${queryString ? `?${queryString}` : ''}`)
   },
 
   get: async (id: number) => {
-    return apiCall(`/api/v1/projects/${id}`)
+    return apiCall(`/projects/${id}`)
   },
 
   create: async (data: { name: string; description?: string; organization_id: number }) => {
-    return apiCall('/api/v1/projects', {
+    return apiCall('/projects', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
   update: async (id: number, data: { name?: string; description?: string; status?: string }) => {
-    return apiCall(`/api/v1/projects/${id}`, {
+    return apiCall(`/projects/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
   },
 
   delete: async (id: number) => {
-    return apiCall(`/api/v1/projects/${id}`, {
+    return apiCall(`/projects/${id}`, {
       method: 'DELETE',
     })
   },
@@ -112,11 +112,11 @@ export const projectApi = {
 export const requirementApi = {
   list: async (params?: { project_id?: number; type?: string; priority?: string }) => {
     const queryString = params ? new URLSearchParams(params as any).toString() : ''
-    return apiCall(`/api/v1/requirements${queryString ? `?${queryString}` : ''}`)
+    return apiCall(`/requirements${queryString ? `?${queryString}` : ''}`)
   },
 
   get: async (id: number) => {
-    return apiCall(`/api/v1/requirements/${id}`)
+    return apiCall(`/requirements/${id}`)
   },
 
   create: async (data: {
@@ -126,7 +126,7 @@ export const requirementApi = {
     requirement_type?: string
     priority?: string
   }) => {
-    return apiCall('/api/v1/requirements', {
+    return apiCall('/requirements', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -139,25 +139,25 @@ export const requirementApi = {
     priority?: string
     status?: string
   }) => {
-    return apiCall(`/api/v1/requirements/${id}`, {
+    return apiCall(`/requirements/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
   },
 
   delete: async (id: number) => {
-    return apiCall(`/api/v1/requirements/${id}`, {
+    return apiCall(`/requirements/${id}`, {
       method: 'DELETE',
     })
   },
 
   getTestCases: async (id: number) => {
-    return apiCall(`/api/v1/requirements/${id}/test-cases`)
+    return apiCall(`/requirements/${id}/test-cases`)
   },
 
   getStats: async (params?: { project_id?: number }) => {
     const queryString = params ? new URLSearchParams(params as any).toString() : ''
-    return apiCall(`/api/v1/requirements/stats/overview${queryString ? `?${queryString}` : ''}`)
+    return apiCall(`/requirements/stats/overview${queryString ? `?${queryString}` : ''}`)
   },
 }
 
@@ -174,11 +174,11 @@ export const testCaseApi = {
     search?: string
   }) => {
     const queryString = params ? new URLSearchParams(params as any).toString() : ''
-    return apiCall(`/api/v1/testcases${queryString ? `?${queryString}` : ''}`)
+    return apiCall(`/testcases${queryString ? `?${queryString}` : ''}`)
   },
 
   get: async (id: number) => {
-    return apiCall(`/api/v1/testcases/${id}`)
+    return apiCall(`/testcases/${id}`)
   },
 
   create: async (data: {
@@ -194,7 +194,7 @@ export const testCaseApi = {
     requirement_id?: number
     assigned_to?: number
   }) => {
-    return apiCall('/api/v1/testcases', {
+    return apiCall('/testcases', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -211,26 +211,26 @@ export const testCaseApi = {
     tags?: string[]
     assigned_to?: number
   }) => {
-    return apiCall(`/api/v1/testcases/${id}`, {
+    return apiCall(`/testcases/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
   },
 
   delete: async (id: number) => {
-    return apiCall(`/api/v1/testcases/${id}`, {
+    return apiCall(`/testcases/${id}`, {
       method: 'DELETE',
     })
   },
 
   clone: async (id: number) => {
-    return apiCall(`/api/v1/testcases/${id}/clone`, {
+    return apiCall(`/testcases/${id}/clone`, {
       method: 'POST',
     })
   },
 
   getVersions: async (id: number) => {
-    return apiCall(`/api/v1/testcases/${id}/versions`)
+    return apiCall(`/testcases/${id}/versions`)
   },
 }
 
@@ -246,7 +246,7 @@ export const executionApi = {
     offset?: number
   }) => {
     const queryString = params ? new URLSearchParams(params as any).toString() : ''
-    return apiCall(`/api/v1/executions${queryString ? `?${queryString}` : ''}`)
+    return apiCall(`/executions${queryString ? `?${queryString}` : ''}`)
   },
 
   create: async (data: {
@@ -258,7 +258,7 @@ export const executionApi = {
     version?: string
     attachment_url?: string
   }) => {
-    return apiCall('/api/v1/executions', {
+    return apiCall('/executions', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -266,19 +266,19 @@ export const executionApi = {
 
   getStats: async (params?: { project_id?: number; test_case_id?: number; days?: number }) => {
     const queryString = params ? new URLSearchParams(params as any).toString() : ''
-    return apiCall(`/api/v1/executions/stats${queryString ? `?${queryString}` : ''}`)
+    return apiCall(`/executions/stats${queryString ? `?${queryString}` : ''}`)
   },
 
   getRecent: async (limit: number = 10) => {
-    return apiCall(`/api/v1/executions/recent?limit=${limit}`)
+    return apiCall(`/executions/recent?limit=${limit}`)
   },
 
   getHistory: async (testCaseId: number, limit: number = 20) => {
-    return apiCall(`/api/v1/executions/history/${testCaseId}?limit=${limit}`)
+    return apiCall(`/executions/history/${testCaseId}?limit=${limit}`)
   },
 
   getDashboardSummary: async () => {
-    return apiCall('/api/v1/executions/dashboard/summary')
+    return apiCall('/executions/dashboard/summary')
   },
 
   update: async (id: number, data: {
@@ -289,7 +289,7 @@ export const executionApi = {
     version?: string
     attachment_url?: string
   }) => {
-    return apiCall(`/api/v1/executions/${id}`, {
+    return apiCall(`/executions/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
@@ -300,35 +300,35 @@ export const executionApi = {
 
 export const commentApi = {
   create: async (data: { test_case_id: number; content: string }) => {
-    return apiCall('/api/v1/comments', {
+    return apiCall('/comments', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
   list: async (testCaseId: number, limit: number = 50, offset: number = 0) => {
-    return apiCall(`/api/v1/test-case/${testCaseId}/comments?limit=${limit}&offset=${offset}`)
+    return apiCall(`/test-case/${testCaseId}/comments?limit=${limit}&offset=${offset}`)
   },
 
   getCount: async (testCaseId: number) => {
-    return apiCall(`/api/v1/test-case/${testCaseId}/comments/count`)
+    return apiCall(`/test-case/${testCaseId}/comments/count`)
   },
 
   update: async (id: number, data: { content: string }) => {
-    return apiCall(`/api/v1/comments/${id}`, {
+    return apiCall(`/comments/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
   },
 
   delete: async (id: number) => {
-    return apiCall(`/api/v1/comments/${id}`, {
+    return apiCall(`/comments/${id}`, {
       method: 'DELETE',
     })
   },
 
   mention: async (id: number, mentionedUserEmail: string) => {
-    return apiCall(`/api/v1/comments/${id}/mention`, {
+    return apiCall(`/comments/${id}/mention`, {
       method: 'POST',
       body: JSON.stringify({ mentioned_user_email: mentionedUserEmail }),
     })
@@ -345,7 +345,7 @@ export const aiApi = {
     requirement_description: string
     additional_context?: string
   }) => {
-    return apiCall('/api/v1/ai/generate-testcases', {
+    return apiCall('/ai/generate-testcases', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -355,7 +355,7 @@ export const aiApi = {
     project_id: number
     test_case_ids?: number[]
   }) => {
-    return apiCall('/api/v1/ai/improve-testcases', {
+    return apiCall('/ai/improve-testcases', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -365,24 +365,24 @@ export const aiApi = {
     test_case_id: number
     script_type: 'playwright' | 'selenium' | 'pytest' | 'cypress'
   }) => {
-    return apiCall('/api/v1/ai/generate-automation', {
+    return apiCall('/ai/generate-automation', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
   getAutomation: async (testCaseId: number) => {
-    return apiCall(`/api/v1/ai/test-case/${testCaseId}/automation`)
+    return apiCall(`/ai/test-case/${testCaseId}/automation`)
   },
 
   validateAutomation: async (testCaseId: number) => {
-    return apiCall(`/api/v1/ai/test-case/${testCaseId}/automation/validate`, {
+    return apiCall(`/ai/test-case/${testCaseId}/automation/validate`, {
       method: 'POST',
     })
   },
 
   getProviders: async () => {
-    return apiCall('/api/v1/ai/providers')
+    return apiCall('/ai/providers')
   },
 }
 
@@ -394,7 +394,7 @@ export const exportApi = {
     test_case_ids?: number[]
     format?: string
   }) => {
-    return apiCall('/api/v1/export/excel', {
+    return apiCall('/export/excel', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -404,7 +404,7 @@ export const exportApi = {
     project_id: number
     test_case_ids?: number[]
   }) => {
-    return apiCall('/api/v1/export/json', {
+    return apiCall('/export/json', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -415,15 +415,15 @@ export const exportApi = {
 
 export const dashboardApi = {
   getStats: async () => {
-    return apiCall('/api/v1/dashboard/stats')
+    return apiCall('/dashboard/stats')
   },
 
   getCoverage: async (projectId?: number) => {
     const queryString = projectId ? `?project_id=${projectId}` : ''
-    return apiCall(`/api/v1/dashboard/coverage${queryString}`)
+    return apiCall(`/dashboard/coverage${queryString}`)
   },
 
   getActivity: async () => {
-    return apiCall('/api/v1/dashboard/activity')
+    return apiCall('/dashboard/activity')
   },
 }

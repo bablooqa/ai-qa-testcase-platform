@@ -109,7 +109,7 @@ class User(Base):
     # Relationships
     organizations = relationship("Organization", secondary=organization_members, back_populates="members")
     projects = relationship("Project", back_populates="created_by_user")
-    test_cases = relationship("TestCase", back_populates="created_by_user")
+    test_cases = relationship("TestCase", foreign_keys="TestCase.created_by", back_populates="created_by_user")
     assigned_test_cases = relationship("TestCase", foreign_keys="TestCase.assigned_to", back_populates="assigned_user")
     comments = relationship("Comment", back_populates="user")
     test_executions = relationship("TestExecution", back_populates="executed_by_user")
@@ -193,14 +193,11 @@ class TestCase(Base):
     # Assignment
     assigned_to = Column(Integer, ForeignKey('users.id'), nullable=True)
     created_by = Column(Integer, ForeignKey('users.id'), nullable=False)
-    
-    # Automation
-    automation_script_id = Column(Integer, ForeignKey('automation_scripts.id'), nullable=True)
-    
+
     # Timestamps
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
-    
+
     # Relationships
     project = relationship("Project", back_populates="test_cases")
     requirement = relationship("Requirement", back_populates="test_cases")
@@ -208,7 +205,7 @@ class TestCase(Base):
     assigned_user = relationship("User", foreign_keys=[assigned_to], back_populates="assigned_test_cases")
     executions = relationship("TestExecution", back_populates="test_case", cascade="all, delete-orphan")
     comments = relationship("Comment", back_populates="test_case", cascade="all, delete-orphan")
-    automation_script = relationship("AutomationScript", back_populates="test_case")
+    automation_script = relationship("AutomationScript", back_populates="test_case", uselist=False)
     previous_version = relationship("TestCase", remote_side=[id], backref="next_versions")
 
 
@@ -283,7 +280,7 @@ class AutomationScript(Base):
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
     # Relationships
-    test_case = relationship("TestCase", back_populates="automation_script")
+    test_case = relationship("TestCase", foreign_keys=[test_case_id], back_populates="automation_script")
 
 
 # Keep backward compatibility with existing tables
