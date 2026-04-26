@@ -13,7 +13,7 @@ from models.enhanced_schemas import (
     CommentCreate, CommentUpdate, CommentResponse
 )
 
-router = APIRouter(prefix="/api/v1/comments", tags=["comments"])
+router = APIRouter(prefix="/comments", tags=["comments"])
 
 
 @router.post("", response_model=CommentResponse, status_code=status.HTTP_201_CREATED)

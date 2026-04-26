@@ -147,7 +147,7 @@ export default function DashboardPage() {
                   <FileText className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats?.total_test_cases || 0}</div>
+                  <div className="text-2xl font-bold">0</div>
                   <p className="text-xs text-muted-foreground">Total test cases</p>
                 </CardContent>
               </Card>
@@ -158,7 +158,7 @@ export default function DashboardPage() {
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats?.pass_rate || 0}%</div>
+                  <div className="text-2xl font-bold">{stats?.month_pass_rate || 0}%</div>
                   <p className="text-xs text-muted-foreground">Overall pass rate</p>
                 </CardContent>
               </Card>
@@ -169,7 +169,7 @@ export default function DashboardPage() {
                   <CheckCircle className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats?.executions_today || 0}</div>
+                  <div className="text-2xl font-bold">{stats?.today || 0}</div>
                   <p className="text-xs text-muted-foreground">Test executions</p>
                 </CardContent>
               </Card>
@@ -187,28 +187,28 @@ export default function DashboardPage() {
                       <CheckCircle className="h-4 w-4 text-green-500" />
                       <span className="text-sm">Passed</span>
                     </div>
-                    <Badge variant="default" className="bg-green-500">{stats?.passed || 0}</Badge>
+                    <Badge variant="default" className="bg-green-500">{stats?.status_breakdown?.pass || 0}</Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <XCircle className="h-4 w-4 text-red-500" />
                       <span className="text-sm">Failed</span>
                     </div>
-                    <Badge variant="destructive">{stats?.failed || 0}</Badge>
+                    <Badge variant="destructive">{stats?.status_breakdown?.fail || 0}</Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-yellow-500" />
                       <span className="text-sm">Blocked</span>
                     </div>
-                    <Badge variant="secondary">{stats?.blocked || 0}</Badge>
+                    <Badge variant="secondary">{stats?.status_breakdown?.blocked || 0}</Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <AlertTriangle className="h-4 w-4 text-orange-500" />
                       <span className="text-sm">Skipped</span>
                     </div>
-                    <Badge variant="outline">{stats?.skipped || 0}</Badge>
+                    <Badge variant="outline">{stats?.status_breakdown?.skipped || 0}</Badge>
                   </div>
                 </CardContent>
               </Card>

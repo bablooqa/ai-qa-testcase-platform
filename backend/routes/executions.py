@@ -17,7 +17,7 @@ from models.enhanced_schemas import (
     TestExecutionCreate, TestExecutionResponse, ExecutionStatus, ExecutionStats
 )
 
-router = APIRouter(prefix="/api/v1/executions", tags=["executions"])
+router = APIRouter(prefix="/executions", tags=["executions"])
 
 
 @router.post("", response_model=TestExecutionResponse, status_code=status.HTTP_201_CREATED)

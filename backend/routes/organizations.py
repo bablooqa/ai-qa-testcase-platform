@@ -17,7 +17,7 @@ from models.enhanced_schemas import (
     UserRole
 )
 
-router = APIRouter(prefix="/api/v1/organizations", tags=["organizations"])
+router = APIRouter(prefix="/organizations", tags=["organizations"])
 
 
 def generate_slug(name: str) -> str:

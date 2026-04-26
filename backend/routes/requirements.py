@@ -14,7 +14,7 @@ from models.enhanced_schemas import (
     RequirementType, TestCasePriority
 )
 
-router = APIRouter(prefix="/api/v1/requirements", tags=["requirements"])
+router = APIRouter(prefix="/requirements", tags=["requirements"])
 
 
 @router.post("", response_model=RequirementResponse, status_code=status.HTTP_201_CREATED)
