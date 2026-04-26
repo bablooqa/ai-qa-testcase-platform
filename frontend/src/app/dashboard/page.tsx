@@ -39,11 +39,10 @@ export default function DashboardPage() {
   }, [])
 
   return (
-    <div className="flex-1 min-h-screen bg-slate-50 dark:bg-slate-950">
-      <header className="border-b bg-white dark:bg-slate-900 px-6 py-4">
+    <div className="p-6 space-y-6">
+      <header className="border-b bg-white dark:bg-slate-900 px-6 py-4 mb-6 rounded-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <SidebarTrigger />
             <div>
               <h1 className="text-2xl font-bold">Dashboard</h1>
               <p className="text-sm text-muted-foreground">Overview of your QA activities</p>
@@ -53,8 +52,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="p-6 space-y-6">
-        {loading ? (
+      {loading ? (
           <>
             {/* Stats Cards Skeleton */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -269,7 +267,6 @@ export default function DashboardPage() {
             </div>
           </>
         )}
-      </main>
     </div>
   )
 }
