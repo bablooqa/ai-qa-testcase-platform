@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from models.database import get_db, Project, User
+from models.database import get_db
+from models.enhanced_models import Project, User, Organization
 from models.schemas import ProjectCreate, Project as ProjectSchema
 from services.ai_service import AIService
 
@@ -10,13 +11,25 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 @router.post("/", response_model=ProjectSchema)
 async def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
     """Create a new project"""
-    # For MVP, create a default user if none exists
+    # For MVP, create default organization and user if none exists
+    default_org = db.query(Organization).first()
+    if not default_org:
+        default_org = Organization(
+            name="Default Organization",
+            description="Default organization for MVP",
+            slug="default-org"
+        )
+        db.add(default_org)
+        db.commit()
+        db.refresh(default_org)
+    
     default_user = db.query(User).first()
     if not default_user:
         default_user = User(
             name="Default User",
             email="default@example.com",
-            role="admin"
+            role="admin",
+            organization_id=default_org.id
         )
         db.add(default_user)
         db.commit()
@@ -25,6 +38,7 @@ async def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
     db_project = Project(
         name=project.name,
         description=project.description,
+        organization_id=default_org.id,
         created_by=default_user.id
     )
     db.add(db_project)

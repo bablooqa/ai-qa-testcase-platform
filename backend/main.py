@@ -9,6 +9,7 @@ load_dotenv()
 
 from models.database import create_tables
 from routes import projects, testcases, ai, export
+from routes import organizations, requirements, executions, comments, ai_enhanced
 
 # Debug: Print API key status (first 10 chars only for security)
 api_key = os.getenv("MISTRAL_API_KEY")
@@ -45,6 +46,11 @@ app.include_router(projects.router)
 app.include_router(testcases.router)
 app.include_router(ai.router)
 app.include_router(export.router)
+app.include_router(organizations.router)
+app.include_router(requirements.router)
+app.include_router(executions.router)
+app.include_router(comments.router)
+app.include_router(ai_enhanced.router)
 
 @app.get("/")
 async def root():

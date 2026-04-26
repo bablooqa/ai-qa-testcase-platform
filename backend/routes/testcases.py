@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from models.database import get_db, TestCase, Project
+from models.database import get_db
+from models.enhanced_models import TestCase, Project
 from models.schemas import TestCase as TestCaseSchema, GenerateTestCaseRequest
 
 router = APIRouter(prefix="/testcases", tags=["testcases"])
