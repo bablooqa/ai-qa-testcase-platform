@@ -12,15 +12,23 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Skeleton } from "@/components/ui/skeleton"
-import { projectApi } from "@/lib/api"
+import { projectApi, testCaseApi } from "@/lib/api"
 import { useRouter } from "next/navigation"
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isGenerateDialogOpen, setIsGenerateDialogOpen] = useState(false)
+  const [editingProject, setEditingProject] = useState<any>(null)
+  const [generatingProject, setGeneratingProject] = useState<any>(null)
   const [creating, setCreating] = useState(false)
+  const [updating, setUpdating] = useState(false)
+  const [generating, setGenerating] = useState(false)
   const [newProject, setNewProject] = useState({ name: "", description: "" })
+  const [editProject, setEditProject] = useState({ name: "", description: "" })
+  const [generateData, setGenerateData] = useState({ requirement: "", feature_name: "" })
   const router = useRouter()
 
   useEffect(() => {
@@ -66,6 +74,81 @@ export default function ProjectsPage() {
     }
   }
 
+  const handleEditProject = async () => {
+    if (!editProject.name.trim() || !editingProject) return
+
+    setUpdating(true)
+    try {
+      const result = await projectApi.update(editingProject.id, {
+        name: editProject.name,
+        description: editProject.description
+      })
+
+      if (result.data) {
+        setProjects(projects.map(p => p.id === editingProject.id ? result.data : p))
+        setIsEditDialogOpen(false)
+        setEditingProject(null)
+        setEditProject({ name: "", description: "" })
+      }
+    } catch (error) {
+      console.error("Failed to update project:", error)
+      alert("Failed to update project. Please try again.")
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  const handleDeleteProject = async (projectId: number) => {
+    if (!confirm("Are you sure you want to delete this project? This action cannot be undone.")) {
+      return
+    }
+
+    try {
+      await projectApi.delete(projectId)
+      setProjects(projects.filter(p => p.id !== projectId))
+    } catch (error) {
+      console.error("Failed to delete project:", error)
+      alert("Failed to delete project. Please try again.")
+    }
+  }
+
+  const openEditDialog = (project: any) => {
+    setEditingProject(project)
+    setEditProject({ name: project.name, description: project.description || "" })
+    setIsEditDialogOpen(true)
+  }
+
+  const openGenerateDialog = (project: any) => {
+    setGeneratingProject(project)
+    setGenerateData({ requirement: "", feature_name: "" })
+    setIsGenerateDialogOpen(true)
+  }
+
+  const handleGenerateTestCases = async () => {
+    if (!generateData.requirement.trim() || !generateData.feature_name.trim() || !generatingProject) return
+
+    setGenerating(true)
+    try {
+      const result = await testCaseApi.generate({
+        requirement: generateData.requirement,
+        feature_name: generateData.feature_name,
+        project_id: generatingProject.id
+      })
+
+      if (result.data && Array.isArray(result.data)) {
+        alert(`Successfully generated ${result.data.length} test cases!`)
+        setIsGenerateDialogOpen(false)
+        setGeneratingProject(null)
+        setGenerateData({ requirement: "", feature_name: "" })
+      }
+    } catch (error) {
+      console.error("Failed to generate test cases:", error)
+      alert("Failed to generate test cases. Please try again.")
+    } finally {
+      setGenerating(false)
+    }
+  }
+
   const handleProjectClick = (projectId: number) => {
     router.push(`/projects/${projectId}`)
   }
@@ -87,7 +170,7 @@ export default function ProjectsPage() {
             </Badge>
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="cursor-pointer">
                   <Plus className="mr-2 h-4 w-4" />
                   New Project
                 </Button>
@@ -125,6 +208,85 @@ export default function ProjectsPage() {
                   </Button>
                   <Button onClick={handleCreateProject} disabled={creating}>
                     {creating ? "Creating..." : "Create Project"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Edit Project</DialogTitle>
+                  <DialogDescription>
+                    Update project details.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-name">Project Name</Label>
+                    <Input
+                      id="edit-name"
+                      placeholder="Enter project name"
+                      value={editProject.name}
+                      onChange={(e) => setEditProject({ ...editProject, name: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-description">Description</Label>
+                    <Textarea
+                      id="edit-description"
+                      placeholder="Enter project description"
+                      value={editProject.description}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditProject({ ...editProject, description: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleEditProject} disabled={updating}>
+                    {updating ? "Updating..." : "Update Project"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={isGenerateDialogOpen} onOpenChange={setIsGenerateDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Generate Test Cases</DialogTitle>
+                  <DialogDescription>
+                    Use AI to generate test cases for this project.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="feature-name">Feature Name</Label>
+                    <Input
+                      id="feature-name"
+                      placeholder="e.g., User Authentication"
+                      value={generateData.feature_name}
+                      onChange={(e) => setGenerateData({ ...generateData, feature_name: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="requirement">Requirement Description</Label>
+                    <Textarea
+                      id="requirement"
+                      placeholder="Describe the feature requirements..."
+                      value={generateData.requirement}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setGenerateData({ ...generateData, requirement: e.target.value })}
+                      rows={4}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsGenerateDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleGenerateTestCases} disabled={generating}>
+                    {generating ? "Generating..." : "Generate Test Cases"}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -198,11 +360,11 @@ export default function ProjectsPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={(e) => e.stopPropagation()}>View Details</DropdownMenuItem>
-                      <DropdownMenuItem onClick={(e) => e.stopPropagation()}>Edit Project</DropdownMenuItem>
-                      <DropdownMenuItem onClick={(e) => e.stopPropagation()}>Generate Test Cases</DropdownMenuItem>
-                      <DropdownMenuItem onClick={(e) => e.stopPropagation()}>Export Report</DropdownMenuItem>
-                      <DropdownMenuItem onClick={(e) => e.stopPropagation()} className="text-red-600">Archive</DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleProjectClick(project.id) }}>View Details</DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); openEditDialog(project) }}>Edit Project</DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); openGenerateDialog(project) }}>Generate Test Cases</DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); alert("Export Report - Coming soon!") }}>Export Report</DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDeleteProject(project.id) }} className="text-red-600">Archive</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>

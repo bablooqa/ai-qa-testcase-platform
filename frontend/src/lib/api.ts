@@ -223,6 +223,17 @@ export const testCaseApi = {
     })
   },
 
+  generate: async (data: {
+    requirement: string
+    feature_name: string
+    project_id: number
+  }) => {
+    return apiCall('/testcases/generate', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+
   clone: async (id: number) => {
     return apiCall(`/testcases/${id}/clone`, {
       method: 'POST',

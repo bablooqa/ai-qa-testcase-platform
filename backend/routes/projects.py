@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from models.database import get_db
 from models.enhanced_models import Project, User, Organization
-from models.schemas import ProjectCreate, Project as ProjectSchema
+from models.schemas import ProjectCreate, Project as ProjectSchema, ProjectUpdate
 from services.ai_service import AIService
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -80,3 +80,36 @@ async def get_project(project_id: int, db: Session = Depends(get_db)):
             detail="Project not found"
         )
     return project
+
+@router.put("/{project_id}", response_model=ProjectSchema)
+async def update_project(project_id: int, project_update: ProjectUpdate, db: Session = Depends(get_db)):
+    """Update a project"""
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found"
+        )
+    
+    if project_update.name is not None:
+        project.name = project_update.name
+    if project_update.description is not None:
+        project.description = project_update.description
+    
+    db.commit()
+    db.refresh(project)
+    return project
+
+@router.delete("/{project_id}")
+async def delete_project(project_id: int, db: Session = Depends(get_db)):
+    """Delete a project"""
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found"
+        )
+    
+    db.delete(project)
+    db.commit()
+    return {"message": "Project deleted successfully"}
