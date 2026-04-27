@@ -9,7 +9,8 @@ frontend/.next/
 frontend/out/
 frontend/build/
 frontend/dist/
-
+.DS_Store/
+.DS_Store
 # Logs
 frontend/*.log
 frontend/npm-debug.log*
