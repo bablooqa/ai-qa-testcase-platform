@@ -12,8 +12,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 import { projectApi, testCaseApi } from "@/lib/api"
 import { useRouter } from "next/navigation"
+import { AiGenerationProgress, GenerationStep } from "@/components/ai/AiGenerationProgress"
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<any[]>([])
@@ -28,7 +31,32 @@ export default function ProjectsPage() {
   const [generating, setGenerating] = useState(false)
   const [newProject, setNewProject] = useState({ name: "", description: "" })
   const [editProject, setEditProject] = useState({ name: "", description: "" })
-  const [generateData, setGenerateData] = useState({ requirement: "", feature_name: "" })
+  const [generateData, setGenerateData] = useState({
+    module: "",
+    feature_name: "",
+    requirement: "",
+    test_type: "functional",
+    coverage_level: "medium",
+    test_count: 10,
+    output_columns: {
+      steps: true,
+      expected_result: true,
+      priority: true,
+      status: true,
+      tags: false,
+      attachments: false
+    }
+  })
+  const [generationSteps, setGenerationSteps] = useState<GenerationStep[]>([
+    { id: "analyze", label: "Analyzing requirement", status: "pending" },
+    { id: "scenarios", label: "Identifying test scenarios", status: "pending" },
+    { id: "generate", label: "Generating test cases", status: "pending" },
+    { id: "priority", label: "Assigning priority", status: "pending" },
+    { id: "finalize", label: "Finalizing output", status: "pending" }
+  ])
+  const [generationProgress, setGenerationProgress] = useState(0)
+  const [generatedTestCases, setGeneratedTestCases] = useState<any[]>([])
+  const [showPreview, setShowPreview] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -120,7 +148,32 @@ export default function ProjectsPage() {
 
   const openGenerateDialog = (project: any) => {
     setGeneratingProject(project)
-    setGenerateData({ requirement: "", feature_name: "" })
+    setGenerateData({
+      module: "",
+      feature_name: "",
+      requirement: "",
+      test_type: "functional",
+      coverage_level: "medium",
+      test_count: 10,
+      output_columns: {
+        steps: true,
+        expected_result: true,
+        priority: true,
+        status: true,
+        tags: false,
+        attachments: false
+      }
+    })
+    setGenerationSteps([
+      { id: "analyze", label: "Analyzing requirement", status: "pending" },
+      { id: "scenarios", label: "Identifying test scenarios", status: "pending" },
+      { id: "generate", label: "Generating test cases", status: "pending" },
+      { id: "priority", label: "Assigning priority", status: "pending" },
+      { id: "finalize", label: "Finalizing output", status: "pending" }
+    ])
+    setGenerationProgress(0)
+    setGeneratedTestCases([])
+    setShowPreview(false)
     setIsGenerateDialogOpen(true)
   }
 
@@ -128,19 +181,70 @@ export default function ProjectsPage() {
     if (!generateData.requirement.trim() || !generateData.feature_name.trim() || !generatingProject) return
 
     setGenerating(true)
+    setShowPreview(false)
+    
     try {
+      // Step 1: Analyze requirement
+      setGenerationSteps(prev => prev.map(step => 
+        step.id === "analyze" ? { ...step, status: "in_progress" } : step
+      ))
+      setGenerationProgress(20)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setGenerationSteps(prev => prev.map(step => 
+        step.id === "analyze" ? { ...step, status: "completed" } : step
+      ))
+
+      // Step 2: Identify scenarios
+      setGenerationSteps(prev => prev.map(step => 
+        step.id === "scenarios" ? { ...step, status: "in_progress" } : step
+      ))
+      setGenerationProgress(40)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setGenerationSteps(prev => prev.map(step => 
+        step.id === "scenarios" ? { ...step, status: "completed" } : step
+      ))
+
+      // Step 3: Generate test cases
+      setGenerationSteps(prev => prev.map(step => 
+        step.id === "generate" ? { ...step, status: "in_progress" } : step
+      ))
+      
       const result = await testCaseApi.generate({
         requirement: generateData.requirement,
         feature_name: generateData.feature_name,
         project_id: generatingProject.id
       })
 
+      setGenerationProgress(70)
       if (result.data && Array.isArray(result.data)) {
-        alert(`Successfully generated ${result.data.length} test cases!`)
-        setIsGenerateDialogOpen(false)
-        setGeneratingProject(null)
-        setGenerateData({ requirement: "", feature_name: "" })
+        const testCases = result.data as any[]
+        setGenerationSteps(prev => prev.map(step => 
+          step.id === "generate" ? { ...step, status: "completed", count: testCases.length } : step
+        ))
+        setGeneratedTestCases(testCases)
       }
+
+      // Step 4: Assign priority
+      setGenerationSteps(prev => prev.map(step => 
+        step.id === "priority" ? { ...step, status: "in_progress" } : step
+      ))
+      setGenerationProgress(85)
+      await new Promise(resolve => setTimeout(resolve, 800))
+      setGenerationSteps(prev => prev.map(step => 
+        step.id === "priority" ? { ...step, status: "completed" } : step
+      ))
+
+      // Step 5: Finalize output
+      setGenerationSteps(prev => prev.map(step => 
+        step.id === "finalize" ? { ...step, status: "in_progress" } : step
+      ))
+      setGenerationProgress(100)
+      await new Promise(resolve => setTimeout(resolve, 500))
+      setGenerationSteps(prev => prev.map(step => 
+        step.id === "finalize" ? { ...step, status: "completed" } : step
+      ))
+
+      setShowPreview(true)
     } catch (error) {
       console.error("Failed to generate test cases:", error)
       alert("Failed to generate test cases. Please try again.")
@@ -252,42 +356,246 @@ export default function ProjectsPage() {
               </DialogContent>
             </Dialog>
 
-            <Dialog open={isGenerateDialogOpen} onOpenChange={setIsGenerateDialogOpen}>
-              <DialogContent>
+            <Dialog open={isGenerateDialogOpen} onOpenChange={(open) => {
+              if (!open) {
+                setIsGenerateDialogOpen(false)
+                setGeneratingProject(null)
+                setShowPreview(false)
+                setGenerationProgress(0)
+              }
+            }}>
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>Generate Test Cases</DialogTitle>
+                  <DialogTitle>Generate Test Cases with AI</DialogTitle>
                   <DialogDescription>
-                    Use AI to generate test cases for this project.
+                    {showPreview ? "Review and edit generated test cases before saving." : "Configure AI settings to generate test cases for this project."}
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="feature-name">Feature Name</Label>
-                    <Input
-                      id="feature-name"
-                      placeholder="e.g., User Authentication"
-                      value={generateData.feature_name}
-                      onChange={(e) => setGenerateData({ ...generateData, feature_name: e.target.value })}
+
+                {!showPreview && !generating && (
+                  <div className="space-y-6 py-4">
+                    {/* Module and Feature */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="module">Module</Label>
+                        <Select value={generateData.module} onValueChange={(value) => setGenerateData({ ...generateData, module: value })}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select module" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="authentication">Authentication</SelectItem>
+                            <SelectItem value="user_management">User Management</SelectItem>
+                            <SelectItem value="payments">Payments</SelectItem>
+                            <SelectItem value="reports">Reports</SelectItem>
+                            <SelectItem value="api">API</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="feature-name">Feature Name</Label>
+                        <Input
+                          id="feature-name"
+                          placeholder="e.g., User Registration"
+                          value={generateData.feature_name}
+                          onChange={(e) => setGenerateData({ ...generateData, feature_name: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Requirement Description */}
+                    <div className="space-y-2">
+                      <Label htmlFor="requirement">Requirement Description</Label>
+                      <Textarea
+                        id="requirement"
+                        placeholder="Describe the feature requirements in detail..."
+                        value={generateData.requirement}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setGenerateData({ ...generateData, requirement: e.target.value })}
+                        rows={4}
+                      />
+                    </div>
+
+                    {/* AI Configuration */}
+                    <div className="space-y-4 border-t pt-4">
+                      <h3 className="text-sm font-medium">AI Configuration</h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="test-type">Test Type</Label>
+                          <Select value={generateData.test_type} onValueChange={(value) => setGenerateData({ ...generateData, test_type: value })}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="functional">Functional</SelectItem>
+                              <SelectItem value="integration">Integration</SelectItem>
+                              <SelectItem value="e2e">E2E</SelectItem>
+                              <SelectItem value="performance">Performance</SelectItem>
+                              <SelectItem value="security">Security</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="coverage-level">Coverage Level</Label>
+                          <Select value={generateData.coverage_level} onValueChange={(value) => setGenerateData({ ...generateData, coverage_level: value })}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="low">Low</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="high">High</SelectItem>
+                              <SelectItem value="comprehensive">Comprehensive</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="test-count">Test Count</Label>
+                          <Input
+                            id="test-count"
+                            type="number"
+                            min="1"
+                            max="50"
+                            value={generateData.test_count}
+                            onChange={(e) => setGenerateData({ ...generateData, test_count: parseInt(e.target.value) || 10 })}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Output Customization */}
+                    <div className="space-y-4 border-t pt-4">
+                      <h3 className="text-sm font-medium">Output Customization</h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                          <Checkbox
+                            checked={generateData.output_columns.steps}
+                            onCheckedChange={(checked) => setGenerateData({
+                              ...generateData,
+                              output_columns: { ...generateData.output_columns, steps: checked as boolean }
+                            })}
+                          />
+                          Test Steps
+                        </label>
+                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                          <Checkbox
+                            checked={generateData.output_columns.expected_result}
+                            onCheckedChange={(checked) => setGenerateData({
+                              ...generateData,
+                              output_columns: { ...generateData.output_columns, expected_result: checked as boolean }
+                            })}
+                          />
+                          Expected Result
+                        </label>
+                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                          <Checkbox
+                            checked={generateData.output_columns.priority}
+                            onCheckedChange={(checked) => setGenerateData({
+                              ...generateData,
+                              output_columns: { ...generateData.output_columns, priority: checked as boolean }
+                            })}
+                          />
+                          Priority
+                        </label>
+                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                          <Checkbox
+                            checked={generateData.output_columns.status}
+                            onCheckedChange={(checked) => setGenerateData({
+                              ...generateData,
+                              output_columns: { ...generateData.output_columns, status: checked as boolean }
+                            })}
+                          />
+                          Status
+                        </label>
+                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                          <Checkbox
+                            checked={generateData.output_columns.tags}
+                            onCheckedChange={(checked) => setGenerateData({
+                              ...generateData,
+                              output_columns: { ...generateData.output_columns, tags: checked as boolean }
+                            })}
+                          />
+                          Tags
+                        </label>
+                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                          <Checkbox
+                            checked={generateData.output_columns.attachments}
+                            onCheckedChange={(checked) => setGenerateData({
+                              ...generateData,
+                              output_columns: { ...generateData.output_columns, attachments: checked as boolean }
+                            })}
+                          />
+                          Attachments
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {generating && (
+                  <div className="py-4">
+                    <AiGenerationProgress
+                      steps={generationSteps}
+                      currentProgress={generationProgress}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="requirement">Requirement Description</Label>
-                    <Textarea
-                      id="requirement"
-                      placeholder="Describe the feature requirements..."
-                      value={generateData.requirement}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setGenerateData({ ...generateData, requirement: e.target.value })}
-                      rows={4}
-                    />
+                )}
+
+                {showPreview && (
+                  <div className="space-y-4 py-4">
+                    <div className="text-sm font-medium">
+                      Generated {generatedTestCases.length} test cases
+                    </div>
+                    <div className="border rounded-lg overflow-hidden">
+                      <table className="w-full text-sm">
+                        <thead className="bg-muted">
+                          <tr>
+                            <th className="px-4 py-2 text-left font-medium">Title</th>
+                            {generateData.output_columns.steps && <th className="px-4 py-2 text-left font-medium">Steps</th>}
+                            {generateData.output_columns.expected_result && <th className="px-4 py-2 text-left font-medium">Expected Result</th>}
+                            {generateData.output_columns.priority && <th className="px-4 py-2 text-left font-medium">Priority</th>}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {generatedTestCases.map((tc, index) => (
+                            <tr key={index} className="border-t">
+                              <td className="px-4 py-2">{tc.title || `Test Case ${index + 1}`}</td>
+                              {generateData.output_columns.steps && <td className="px-4 py-2 max-w-xs truncate">{tc.steps || "-"}</td>}
+                              {generateData.output_columns.expected_result && <td className="px-4 py-2 max-w-xs truncate">{tc.expected_result || "-"}</td>}
+                              {generateData.output_columns.priority && <td className="px-4 py-2">{tc.priority || "medium"}</td>}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </div>
+                )}
+
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsGenerateDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleGenerateTestCases} disabled={generating}>
-                    {generating ? "Generating..." : "Generate Test Cases"}
-                  </Button>
+                  {!showPreview && !generating && (
+                    <>
+                      <Button variant="outline" onClick={() => setIsGenerateDialogOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={handleGenerateTestCases} disabled={!generateData.requirement.trim() || !generateData.feature_name.trim()}>
+                        Generate Test Cases
+                      </Button>
+                    </>
+                  )}
+                  {showPreview && (
+                    <>
+                      <Button variant="outline" onClick={() => setIsGenerateDialogOpen(false)}>
+                        Discard
+                      </Button>
+                      <Button onClick={() => {
+                        setIsGenerateDialogOpen(false)
+                        setGeneratingProject(null)
+                        setShowPreview(false)
+                        alert(`Successfully saved ${generatedTestCases.length} test cases!`)
+                      }}>
+                        Save to Database
+                      </Button>
+                    </>
+                  )}
                 </DialogFooter>
               </DialogContent>
             </Dialog>
